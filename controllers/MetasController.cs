@@ -1,118 +1,15 @@
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using MetaFicha.Data;
 using MetaFicha.Models;
-
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 namespace MetaFicha.Controllers;
-
-[ApiController]
-[Route("api/[controller]")]
-public class MetasController : ControllerBase
+[ApiController, Route("api/metas")]
+public class MetasController(MetaFichaContext context) : ControllerBase
 {
-    private readonly MetaFichaContext _context;
-
-    public MetasController(MetaFichaContext context)
-    {
-        _context = context;
-    }
-
-
-    // GET: api/metas
-    [HttpGet]
-    public async Task<ActionResult<IEnumerable<Meta>>> GetMetas()
-    {
-        return await _context.Metas.ToListAsync();
-    }
-
-
-    // GET: api/metas/1
-    [HttpGet("{id}")]
-    public async Task<ActionResult<Meta>> GetMeta(int id)
-    {
-        var meta = await _context.Metas.FindAsync(id);
-
-        if (meta == null)
-        {
-            return NotFound();
-        }
-
-        return meta;
-    }
-
-
-    // POST: api/metas
-    [HttpPost]
-    public async Task<ActionResult<Meta>> CriarMeta(Meta meta)
-    {
-        _context.Metas.Add(meta);
-
-        await _context.SaveChangesAsync();
-
-        return CreatedAtAction(
-            nameof(GetMeta),
-            new { id = meta.Id },
-            meta
-        );
-    }
-
-
-    // PUT: api/metas/1
-    [HttpPut("{id}")]
-    public async Task<IActionResult> AtualizarMeta(
-        int id,
-        Meta meta
-    )
-    {
-        if (id != meta.Id)
-        {
-            return BadRequest();
-        }
-
-        _context.Entry(meta).State =
-            EntityState.Modified;
-
-        try
-        {
-            await _context.SaveChangesAsync();
-        }
-        catch (DbUpdateConcurrencyException)
-        {
-            if (!MetaExiste(id))
-            {
-                return NotFound();
-            }
-
-            throw;
-        }
-
-        return NoContent();
-    }
-
-
-    // DELETE: api/metas/1
-    [HttpDelete("{id}")]
-    public async Task<IActionResult> ExcluirMeta(int id)
-    {
-        var meta =
-            await _context.Metas.FindAsync(id);
-
-        if (meta == null)
-        {
-            return NotFound();
-        }
-
-        _context.Metas.Remove(meta);
-
-        await _context.SaveChangesAsync();
-
-        return NoContent();
-    }
-
-
-    private bool MetaExiste(int id)
-    {
-        return _context.Metas.Any(
-            e => e.Id == id
-        );
-    }
+ [HttpGet] public Task<List<Meta>> Listar() => context.Metas.OrderByDescending(x => x.DataInicio).ToListAsync();
+ [HttpGet("{id:int}")] public async Task<ActionResult<Meta>> Obter(int id) => await context.Metas.FindAsync(id) is { } meta ? Ok(meta) : NotFound();
+ [HttpPost] public async Task<ActionResult<Meta>> Criar(Meta meta) { Preparar(meta); meta.Id=0; meta.UsuarioId=meta.UsuarioId==0?1:meta.UsuarioId; context.Metas.Add(meta); await context.SaveChangesAsync(); return CreatedAtAction(nameof(Obter),new {id=meta.Id},meta); }
+ [HttpPut("{id:int}")] public async Task<ActionResult<Meta>> Atualizar(int id, Meta meta) { if(id!=meta.Id)return BadRequest(); if(!await context.Metas.AnyAsync(x=>x.Id==id))return NotFound(); Preparar(meta); context.Entry(meta).State=EntityState.Modified; await context.SaveChangesAsync(); return Ok(meta); }
+ [HttpDelete("{id:int}")] public async Task<IActionResult> Excluir(int id) { var meta=await context.Metas.FindAsync(id); if(meta is null)return NotFound(); context.Metas.Remove(meta); context.Vendas.RemoveRange(context.Vendas.Where(x=>x.MetaId==id)); await context.SaveChangesAsync(); return NoContent(); }
+ private static void Preparar(Meta meta) { if (meta.Mes != 0 && meta.Ano != 0) return; if (DateTime.TryParse(meta.DataInicio, out var inicio)) { meta.Mes = meta.Mes == 0 ? inicio.Month : meta.Mes; meta.Ano = meta.Ano == 0 ? inicio.Year : meta.Ano; } }
 }

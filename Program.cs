@@ -3,6 +3,8 @@ using MetaFicha.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
+Database.CriarBanco(builder.Configuration.GetConnectionString("DefaultConnection")!);
+
 builder.Services.AddControllers();
 
 builder.Services.AddDbContext<MetaFichaContext>(options =>

@@ -1,81 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
 using MetaFicha.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace MetaFicha.Data;
 
-public partial class MetaFichaContext : DbContext
+public class MetaFichaContext(DbContextOptions<MetaFichaContext> options) : DbContext(options)
 {
-    public MetaFichaContext()
-    {
-    }
-
-    public MetaFichaContext(DbContextOptions<MetaFichaContext> options)
-        : base(options)
-    {
-    }
-
-    public virtual DbSet<Meta> Metas { get; set; }
-
-    public virtual DbSet<Usuario> Usuarios { get; set; }
-
-    public virtual DbSet<Venda> Vendas { get; set; }
-
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseSqlite("Data Source=meta_ficha.db");
+    public DbSet<Meta> Metas => Set<Meta>();
+    public DbSet<Usuario> Usuarios => Set<Usuario>();
+    public DbSet<Venda> Vendas => Set<Venda>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<Meta>(entity =>
-        {
-            entity.ToTable("metas");
-
-            entity.Property(e => e.Id).HasColumnName("id");
-            entity.Property(e => e.Ano).HasColumnName("ano");
-            entity.Property(e => e.Mes).HasColumnName("mes");
-            entity.Property(e => e.UsuarioId).HasColumnName("usuario_id");
-            entity.Property(e => e.ValorMeta).HasColumnName("valor_meta");
-
-            entity.HasOne(d => d.Usuario).WithMany(p => p.Meta).HasForeignKey(d => d.UsuarioId);
-        });
-
-        modelBuilder.Entity<Usuario>(entity =>
-        {
-            entity.ToTable("usuarios");
-
-            entity.HasIndex(e => e.Email, "IX_usuarios_email").IsUnique();
-
-            entity.Property(e => e.Id).HasColumnName("id");
-            entity.Property(e => e.DataCadastro)
-                .HasDefaultValueSql("CURRENT_TIMESTAMP")
-                .HasColumnName("data_cadastro");
-            entity.Property(e => e.Email).HasColumnName("email");
-            entity.Property(e => e.Nome).HasColumnName("nome");
-            entity.Property(e => e.Senha).HasColumnName("senha");
-        });
-
-        modelBuilder.Entity<Venda>(entity =>
-        {
-            entity.ToTable("vendas");
-
-            entity.Property(e => e.Id).HasColumnName("id");
-            entity.Property(e => e.Comissao)
-                .HasDefaultValue(0.0)
-                .HasColumnName("comissao");
-            entity.Property(e => e.DataVenda)
-                .HasDefaultValueSql("CURRENT_TIMESTAMP")
-                .HasColumnName("data_venda");
-            entity.Property(e => e.Descricao).HasColumnName("descricao");
-            entity.Property(e => e.UsuarioId).HasColumnName("usuario_id");
-            entity.Property(e => e.Valor).HasColumnName("valor");
-
-            entity.HasOne(d => d.Usuario).WithMany(p => p.Venda).HasForeignKey(d => d.UsuarioId);
-        });
-
-        OnModelCreatingPartial(modelBuilder);
+        modelBuilder.Entity<Usuario>(e => { e.ToTable("usuarios"); e.HasKey(x => x.Id); e.Property(x => x.Id).HasColumnName("id"); e.Property(x => x.Nome).HasColumnName("nome"); e.Property(x => x.Email).HasColumnName("email"); e.Property(x => x.Senha).HasColumnName("senha"); e.Property(x => x.DataCadastro).HasColumnName("data_cadastro"); });
+        modelBuilder.Entity<Meta>(e => { e.ToTable("metas"); e.HasKey(x => x.Id); e.Property(x => x.Id).HasColumnName("id"); e.Property(x => x.UsuarioId).HasColumnName("usuario_id"); e.Property(x => x.Nome).HasColumnName("nome"); e.Property(x => x.ValorMeta).HasColumnName("valor_meta"); e.Property(x => x.Mes).HasColumnName("mes"); e.Property(x => x.Ano).HasColumnName("ano"); e.Property(x => x.QuantidadeVendasMeta).HasColumnName("quantidade_vendas_meta"); e.Property(x => x.DataInicio).HasColumnName("data_inicio"); e.Property(x => x.DataFim).HasColumnName("data_fim"); });
+        modelBuilder.Entity<Venda>(e => { e.ToTable("vendas"); e.HasKey(x => x.Id); e.Property(x => x.Id).HasColumnName("id"); e.Property(x => x.UsuarioId).HasColumnName("usuario_id"); e.Property(x => x.MetaId).HasColumnName("meta_id"); e.Property(x => x.Cliente).HasColumnName("cliente"); e.Property(x => x.Produto).HasColumnName("produto"); e.Property(x => x.Valor).HasColumnName("valor"); e.Property(x => x.DataVenda).HasColumnName("data_venda"); e.Property(x => x.Status).HasColumnName("status"); e.Property(x => x.Observacoes).HasColumnName("observacoes"); e.Property(x => x.DataCriacao).HasColumnName("data_criacao"); });
     }
-
-    partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
 }
