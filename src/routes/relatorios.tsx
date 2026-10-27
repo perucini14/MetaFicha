@@ -14,9 +14,9 @@ import { Card, PageHeader } from "@/components/ui";
 export const Route = createFileRoute("/relatorios")({
   head: () => ({
     meta: [
-      { title: "Relatórios — Controle de Metas" },
+      { title: "Relatórios — MetaFlow" },
       { name: "description", content: "Relatórios de vendas: faturamento por dia, semana e mês, meta x realizado." },
-      { property: "og:title", content: "Relatórios — Controle de Metas" },
+      { property: "og:title", content: "Relatórios — MetaFlow" },
       { property: "og:description", content: "Relatórios e gráficos de desempenho de vendas." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

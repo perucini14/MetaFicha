@@ -1,10 +1,10 @@
-using MetaFicha.Data;
-using MetaFicha.Models;
+﻿using MetaFlow.Data;
+using MetaFlow.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-namespace MetaFicha.Controllers;
-[ApiController, Route("api/metas")]
-public class MetasController(MetaFichaContext context) : ControllerBase
+namespace MetaFlow.Controllers;
+[Microsoft.AspNetCore.Authorization.Authorize, ApiController, Route("api/metas")]
+public class MetasController(MetaFlowContext context) : ControllerBase
 {
  [HttpGet] public Task<List<Meta>> Listar() => context.Metas.OrderByDescending(x => x.DataInicio).ToListAsync();
  [HttpGet("{id:int}")] public async Task<ActionResult<Meta>> Obter(int id) => await context.Metas.FindAsync(id) is { } meta ? Ok(meta) : NotFound();
@@ -13,3 +13,4 @@ public class MetasController(MetaFichaContext context) : ControllerBase
  [HttpDelete("{id:int}")] public async Task<IActionResult> Excluir(int id) { var meta=await context.Metas.FindAsync(id); if(meta is null)return NotFound(); context.Metas.Remove(meta); context.Vendas.RemoveRange(context.Vendas.Where(x=>x.MetaId==id)); await context.SaveChangesAsync(); return NoContent(); }
  private static void Preparar(Meta meta) { if (meta.Mes != 0 && meta.Ano != 0) return; if (DateTime.TryParse(meta.DataInicio, out var inicio)) { meta.Mes = meta.Mes == 0 ? inicio.Month : meta.Mes; meta.Ano = meta.Ano == 0 ? inicio.Year : meta.Ano; } }
 }
+

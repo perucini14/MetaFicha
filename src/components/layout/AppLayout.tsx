@@ -15,7 +15,7 @@ const menu = [
 ] as const;
 
 function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
-  const { usuario } = useStore();
+  const { usuario, sair } = useStore();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
 
   return (
@@ -25,7 +25,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
           <TrendingUp className="h-5 w-5 text-primary-foreground" />
         </div>
         <div>
-          <p className="text-base font-bold text-sidebar-accent-foreground">Controle de Metas</p>
+          <p className="text-base font-bold text-sidebar-accent-foreground">MetaFlow</p>
           <p className="text-xs text-sidebar-foreground/60">Vendas & Faturamento</p>
         </div>
       </div>
@@ -62,6 +62,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
           </div>
           <button
             title="Sair"
+            onClick={() => void sair()}
             className="rounded-lg p-2 text-sidebar-foreground/60 transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
           >
             <LogOut className="h-4 w-4" />
@@ -113,7 +114,7 @@ export function AppLayout({ children }: { children: ReactNode }) {
             <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-primary">
               <TrendingUp className="h-4 w-4 text-primary-foreground" />
             </div>
-            <span className="text-sm font-bold text-foreground">Controle de Metas</span>
+            <span className="text-sm font-bold text-foreground">MetaFlow</span>
           </div>
         </header>
 
@@ -122,3 +123,4 @@ export function AppLayout({ children }: { children: ReactNode }) {
     </div>
   );
 }
+

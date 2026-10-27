@@ -8,6 +8,9 @@ interface StoreState {
   vendas: Venda[];
   metaAtiva: Meta | null;
   loading: boolean;
+  login: (email: string, senha: string) => Promise<void>;
+  sair: () => Promise<void>;
+  erro: string | null;
   criarMeta: (data: Omit<Meta, "id" | "usuarioId">) => Promise<void>;
   atualizarMeta: (id: number, data: Partial<Meta>) => Promise<void>;
   excluirMeta: (id: number) => Promise<void>;
@@ -23,16 +26,25 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const [metas, setMetas] = useState<Meta[]>([]);
   const [vendas, setVendas] = useState<Venda[]>([]);
   const [loading, setLoading] = useState(true);
+  const [erro, setErro] = useState<string | null>(null);
 
   useEffect(() => {
-    Promise.all([api.getUsuario(), api.listarMetas(), api.listarVendas()]).then(
-      ([u, m, v]) => {
-        setUsuario(u);
-        setMetas(m);
-        setVendas(v);
-        setLoading(false);
-      }
-    );
+    api.getUsuario().then(async (u) => {
+      const [m, v] = await Promise.all([api.listarMetas(), api.listarVendas()]);
+      setUsuario(u); setMetas(m); setVendas(v);
+    }).catch((e) => { if (!String(e).includes("401")) setErro("Não foi possível conectar à API. Inicie o backend."); })
+      .finally(() => setLoading(false));
+  }, []);
+
+  const login = useCallback(async (email: string, senha: string) => {
+    const u = await api.login(email, senha);
+    const [m, v] = await Promise.all([api.listarMetas(), api.listarVendas()]);
+    setUsuario(u); setMetas(m); setVendas(v); setErro(null);
+  }, []);
+
+  const sair = useCallback(async () => {
+    await api.logout();
+    setUsuario(null); setMetas([]); setVendas([]);
   }, []);
 
   const criarMeta = useCallback(async (data: Omit<Meta, "id" | "usuarioId">) => {
@@ -74,7 +86,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   }, [metas]);
 
   const value: StoreState = {
-    usuario, metas, vendas, metaAtiva, loading,
+    usuario, metas, vendas, metaAtiva, loading, login, sair, erro,
     criarMeta, atualizarMeta, excluirMeta, criarVenda, atualizarVenda, excluirVenda,
   };
 

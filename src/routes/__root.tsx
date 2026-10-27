@@ -14,6 +14,8 @@ import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { StoreProvider } from "../lib/store";
 import { AppLayout } from "../components/layout/AppLayout";
+import { Login } from "../components/Login";
+import { useStore } from "../lib/store";
 
 function NotFoundComponent() {
   return (
@@ -80,9 +82,9 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Controle de Metas — Vendas e Faturamento" },
+      { title: "MetaFlow — Vendas e Faturamento" },
       { name: "description", content: "Sistema de controle de metas financeiras de vendas: registre vendas, acompanhe o faturamento e veja quanto falta para atingir sua meta." },
-      { property: "og:title", content: "Controle de Metas — Vendas e Faturamento" },
+      { property: "og:title", content: "MetaFlow — Vendas e Faturamento" },
       { property: "og:description", content: "Registre vendas, acompanhe o faturamento e atinja suas metas financeiras." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
@@ -127,12 +129,17 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <StoreProvider>
-        <AppLayout>
-          {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-          <Outlet />
-        </AppLayout>
+        <AuthenticatedContent />
         <Toaster richColors position="top-right" />
       </StoreProvider>
     </QueryClientProvider>
   );
 }
+
+function AuthenticatedContent() {
+  const { usuario, loading } = useStore();
+  if (loading) return <div className="p-8">Carregando...</div>;
+  if (!usuario) return <Login />;
+  return <AppLayout><Outlet /></AppLayout>;
+}
+

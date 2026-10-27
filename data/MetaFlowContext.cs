@@ -1,9 +1,9 @@
-using MetaFicha.Models;
+using MetaFlow.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace MetaFicha.Data;
+namespace MetaFlow.Data;
 
-public class MetaFichaContext(DbContextOptions<MetaFichaContext> options) : DbContext(options)
+public class MetaFlowContext(DbContextOptions<MetaFlowContext> options) : DbContext(options)
 {
     public DbSet<Meta> Metas => Set<Meta>();
     public DbSet<Usuario> Usuarios => Set<Usuario>();

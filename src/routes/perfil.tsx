@@ -9,9 +9,9 @@ import { Card, PageHeader } from "@/components/ui";
 export const Route = createFileRoute("/perfil")({
   head: () => ({
     meta: [
-      { title: "Perfil — Controle de Metas" },
-      { name: "description", content: "Perfil do usuário e informações sobre o projeto acadêmico Controle de Metas." },
-      { property: "og:title", content: "Perfil — Controle de Metas" },
+      { title: "Perfil — MetaFlow" },
+      { name: "description", content: "Perfil do usuário e informações sobre o projeto acadêmico MetaFlow." },
+      { property: "og:title", content: "Perfil — MetaFlow" },
       { property: "og:description", content: "Perfil do usuário e resumo de desempenho em vendas." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
@@ -88,7 +88,7 @@ function PerfilPage() {
             </div>
             <div className="rounded-xl bg-muted p-4">
               <dt className="text-xs font-medium text-muted-foreground">Sistema</dt>
-              <dd className="mt-1 text-sm font-semibold text-foreground">Controle de Metas</dd>
+              <dd className="mt-1 text-sm font-semibold text-foreground">MetaFlow</dd>
             </div>
             <div className="rounded-xl bg-muted p-4">
               <dt className="text-xs font-medium text-muted-foreground">Objetivo</dt>

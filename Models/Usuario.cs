@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace MetaFicha.Models;
+namespace MetaFlow.Models;
 
 public partial class Usuario
 {

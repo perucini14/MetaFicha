@@ -1,10 +1,10 @@
-using MetaFicha.Data;
-using MetaFicha.Models;
+﻿using MetaFlow.Data;
+using MetaFlow.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-namespace MetaFicha.Controllers;
-[ApiController, Route("api/vendas")]
-public class VendasController(MetaFichaContext context) : ControllerBase
+namespace MetaFlow.Controllers;
+[Microsoft.AspNetCore.Authorization.Authorize, ApiController, Route("api/vendas")]
+public class VendasController(MetaFlowContext context) : ControllerBase
 {
  [HttpGet] public Task<List<Venda>> Listar() => context.Vendas.OrderByDescending(x=>x.DataVenda).ToListAsync();
  [HttpGet("{id:int}")] public async Task<ActionResult<Venda>> Obter(int id) => await context.Vendas.FindAsync(id) is { } venda ? Ok(venda) : NotFound();
@@ -12,3 +12,4 @@ public class VendasController(MetaFichaContext context) : ControllerBase
  [HttpPut("{id:int}")] public async Task<ActionResult<Venda>> Atualizar(int id,Venda venda) { if(id!=venda.Id)return BadRequest(); if(!await context.Vendas.AnyAsync(x=>x.Id==id))return NotFound(); context.Entry(venda).State=EntityState.Modified; await context.SaveChangesAsync(); return Ok(venda); }
  [HttpDelete("{id:int}")] public async Task<IActionResult> Excluir(int id) { var venda=await context.Vendas.FindAsync(id); if(venda is null)return NotFound(); context.Vendas.Remove(venda); await context.SaveChangesAsync(); return NoContent(); }
 }
+

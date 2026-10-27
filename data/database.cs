@@ -1,6 +1,6 @@
 using Microsoft.Data.Sqlite;
 
-namespace MetaFicha.Data;
+namespace MetaFlow.Data;
 
 public static class Database
 {
@@ -17,7 +17,14 @@ public static class Database
         comando.ExecuteNonQuery();
         foreach (var sql in new[] { "ALTER TABLE metas ADD COLUMN nome TEXT NOT NULL DEFAULT ''", "ALTER TABLE metas ADD COLUMN quantidade_vendas_meta INTEGER NOT NULL DEFAULT 0", "ALTER TABLE metas ADD COLUMN data_inicio TEXT NOT NULL DEFAULT ''", "ALTER TABLE metas ADD COLUMN data_fim TEXT NOT NULL DEFAULT ''", "ALTER TABLE vendas ADD COLUMN meta_id INTEGER NOT NULL DEFAULT 0", "ALTER TABLE vendas ADD COLUMN cliente TEXT NOT NULL DEFAULT ''", "ALTER TABLE vendas ADD COLUMN produto TEXT NOT NULL DEFAULT ''", "ALTER TABLE vendas ADD COLUMN status TEXT NOT NULL DEFAULT 'concluida'", "ALTER TABLE vendas ADD COLUMN observacoes TEXT", "ALTER TABLE vendas ADD COLUMN data_criacao TEXT NOT NULL DEFAULT ''" })
             try { comando.CommandText = sql; comando.ExecuteNonQuery(); } catch (SqliteException) { }
-        comando.CommandText = "INSERT OR IGNORE INTO usuarios (id, nome, email, senha) VALUES (1, 'Usuário', 'usuario@metaficha.local', '');";
+        comando.CommandText = "SELECT COUNT(*) FROM usuarios WHERE id = 1";
+        var existe = (long)comando.ExecuteScalar()! > 0;
+        comando.CommandText = existe
+            ? "UPDATE usuarios SET nome=$nome, email=$email, senha=$senha WHERE id=1 AND (senha='' OR senha IS NULL)"
+            : "INSERT INTO usuarios (id,nome,email,senha) VALUES (1,$nome,$email,$senha)";
+        comando.Parameters.AddWithValue("$nome", "Administrador");
+        comando.Parameters.AddWithValue("$email", "admin@metaflow.local");
+        comando.Parameters.AddWithValue("$senha", PasswordHelper.CriarHash("Admin@123"));
         comando.ExecuteNonQuery();
     }
 }

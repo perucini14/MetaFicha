@@ -13,9 +13,9 @@ import { ConfirmDialog } from "@/components/ConfirmDialog";
 export const Route = createFileRoute("/vendas")({
   head: () => ({
     meta: [
-      { title: "Vendas — Controle de Metas" },
+      { title: "Vendas — MetaFlow" },
       { name: "description", content: "Registre e acompanhe suas vendas, valores e status." },
-      { property: "og:title", content: "Vendas — Controle de Metas" },
+      { property: "og:title", content: "Vendas — MetaFlow" },
       { property: "og:description", content: "Registre e acompanhe suas vendas." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

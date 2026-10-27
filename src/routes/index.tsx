@@ -13,9 +13,9 @@ import { Badge, Card, PageHeader, ProgressBar } from "@/components/ui";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Dashboard — Controle de Metas" },
+      { title: "Dashboard — MetaFlow" },
       { name: "description", content: "Acompanhe suas vendas, faturamento e veja quanto falta para atingir sua meta financeira." },
-      { property: "og:title", content: "Dashboard — Controle de Metas" },
+      { property: "og:title", content: "Dashboard — MetaFlow" },
       { property: "og:description", content: "Acompanhe suas vendas e veja quanto falta para atingir sua meta." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

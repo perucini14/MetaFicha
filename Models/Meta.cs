@@ -1,4 +1,4 @@
-namespace MetaFicha.Models;
+namespace MetaFlow.Models;
 
 public class Meta
 {

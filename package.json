@@ -1,5 +1,5 @@
 {
-  "name": "tanstack_start_ts",
+  "name": "metaflow",
   "private": true,
   "sideEffects": false,
   "type": "module",
@@ -88,3 +88,4 @@
     "vite": "8.1.5"
   }
 }
+
