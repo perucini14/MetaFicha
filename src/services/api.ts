@@ -23,8 +23,8 @@
 import type { Meta, Usuario, Venda } from "@/lib/types";
 import { mockMetas, mockUsuario, mockVendas } from "./mock-data";
 
-const USE_MOCK = true;
-const API_BASE_URL = "/api";
+const USE_MOCK = false;
+const API_BASE_URL = import.meta.env.VITE_API_URL ?? "http://localhost:5000/api";
 
 // Estado em memória (apenas modo mock)
 let metasDb: Meta[] = [...mockMetas];
@@ -38,6 +38,7 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
     ...init,
   });
   if (!res.ok) throw new Error(`Erro na API: ${res.status}`);
+  if (res.status === 204) return undefined as T;
   return res.json() as Promise<T>;
 }
 
@@ -69,7 +70,8 @@ export async function atualizarMeta(id: number, data: Partial<Meta>): Promise<Me
     metasDb = metasDb.map((m) => (m.id === id ? { ...m, ...data, id } : m));
     return metasDb.find((m) => m.id === id)!;
   }
-  return request<Meta>(`/metas/${id}`, { method: "PUT", body: JSON.stringify(data) });
+  const atual = await request<Meta>(`/metas/${id}`);
+  return request<Meta>(`/metas/${id}`, { method: "PUT", body: JSON.stringify({ ...atual, ...data, id }) });
 }
 
 export async function excluirMeta(id: number): Promise<void> {
@@ -107,7 +109,8 @@ export async function atualizarVenda(id: number, data: Partial<Venda>): Promise<
     vendasDb = vendasDb.map((v) => (v.id === id ? { ...v, ...data, id } : v));
     return vendasDb.find((v) => v.id === id)!;
   }
-  return request<Venda>(`/vendas/${id}`, { method: "PUT", body: JSON.stringify(data) });
+  const atual = await request<Venda>(`/vendas/${id}`);
+  return request<Venda>(`/vendas/${id}`, { method: "PUT", body: JSON.stringify({ ...atual, ...data, id }) });
 }
 
 export async function excluirVenda(id: number): Promise<void> {

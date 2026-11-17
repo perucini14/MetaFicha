@@ -1,12 +1,12 @@
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using MetaFicha.Data;
 using MetaFicha.Models;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace MetaFicha.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/metas")]
 public class MetasController : ControllerBase
 {
     private readonly MetaFichaContext _context;
@@ -16,103 +16,95 @@ public class MetasController : ControllerBase
         _context = context;
     }
 
-
-    // GET: api/metas
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<Meta>>> GetMetas()
+    public async Task<List<Meta>> Listar()
     {
-        return await _context.Metas.ToListAsync();
+        return await _context.Metas.OrderByDescending(meta => meta.DataInicio).ToListAsync();
     }
 
-
-    // GET: api/metas/1
-    [HttpGet("{id}")]
-    public async Task<ActionResult<Meta>> GetMeta(int id)
+    [HttpGet("{id:int}")]
+    public async Task<ActionResult<Meta>> Obter(int id)
     {
-        var meta = await _context.Metas.FindAsync(id);
-
+        Meta? meta = await _context.Metas.FindAsync(id);
         if (meta == null)
         {
             return NotFound();
         }
 
-        return meta;
+        return Ok(meta);
     }
 
-
-    // POST: api/metas
     [HttpPost]
-    public async Task<ActionResult<Meta>> CriarMeta(Meta meta)
+    public async Task<ActionResult<Meta>> Criar(Meta meta)
     {
+        Preparar(meta);
+        meta.Id = 0;
+        if (meta.UsuarioId == 0)
+        {
+            meta.UsuarioId = 1;
+        }
+
         _context.Metas.Add(meta);
-
         await _context.SaveChangesAsync();
-
-        return CreatedAtAction(
-            nameof(GetMeta),
-            new { id = meta.Id },
-            meta
-        );
+        return CreatedAtAction(nameof(Obter), new { id = meta.Id }, meta);
     }
 
-
-    // PUT: api/metas/1
-    [HttpPut("{id}")]
-    public async Task<IActionResult> AtualizarMeta(
-        int id,
-        Meta meta
-    )
+    [HttpPut("{id:int}")]
+    public async Task<ActionResult<Meta>> Atualizar(int id, Meta meta)
     {
         if (id != meta.Id)
         {
             return BadRequest();
         }
 
-        _context.Entry(meta).State =
-            EntityState.Modified;
-
-        try
+        bool existe = await _context.Metas.AnyAsync(item => item.Id == id);
+        if (!existe)
         {
-            await _context.SaveChangesAsync();
-        }
-        catch (DbUpdateConcurrencyException)
-        {
-            if (!MetaExiste(id))
-            {
-                return NotFound();
-            }
-
-            throw;
+            return NotFound();
         }
 
-        return NoContent();
+        Preparar(meta);
+        _context.Entry(meta).State = EntityState.Modified;
+        await _context.SaveChangesAsync();
+        return Ok(meta);
     }
 
-
-    // DELETE: api/metas/1
-    [HttpDelete("{id}")]
-    public async Task<IActionResult> ExcluirMeta(int id)
+    [HttpDelete("{id:int}")]
+    public async Task<IActionResult> Excluir(int id)
     {
-        var meta =
-            await _context.Metas.FindAsync(id);
-
+        Meta? meta = await _context.Metas.FindAsync(id);
         if (meta == null)
         {
             return NotFound();
         }
 
+        var vendas = await _context.Vendas.Where(venda => venda.MetaId == id).ToListAsync();
+        _context.Vendas.RemoveRange(vendas);
         _context.Metas.Remove(meta);
-
         await _context.SaveChangesAsync();
-
         return NoContent();
     }
 
-
-    private bool MetaExiste(int id)
+    private static void Preparar(Meta meta)
     {
-        return _context.Metas.Any(
-            e => e.Id == id
-        );
+        if (meta.Mes != 0 && meta.Ano != 0)
+        {
+            return;
+        }
+
+        if (!DateTime.TryParse(meta.DataInicio, out DateTime inicio))
+        {
+            return;
+        }
+
+        if (meta.Mes == 0)
+        {
+            meta.Mes = inicio.Month;
+        }
+
+        if (meta.Ano == 0)
+        {
+            meta.Ano = inicio.Year;
+        }
     }
 }
